@@ -9,6 +9,8 @@ let column;
 
 const BODY = document.querySelector('body');
 
+let style = 0;
+
 // dimension selector
 let sizeSelector = document.createElement('button');
 sizeSelector.textContent = "Select dimension";
@@ -22,6 +24,7 @@ sizeSelector.addEventListener('click', (event) => {
     }
     if(+newDimension){
         // delete container node
+        dimension = newDimension;
         let containerNode = document.querySelector('.container');
         if(containerNode){
             containerNode.remove();
@@ -36,14 +39,67 @@ sizeSelector.addEventListener('click', (event) => {
 });
 BODY.appendChild(sizeSelector);
 
+const WORKSPACE = document.createElement('div');
+WORKSPACE.style.display = 'flex';
+WORKSPACE.style.flex = SIZE;
+WORKSPACE.style.width = "1000px";
+WORKSPACE.style.justifyContent = "space-evenly";
 
-// etch-a-sketch container
+const STYLESELECTORS = document.createElement('div');
+STYLESELECTORS.style.display = 'flex';
+STYLESELECTORS.style.flexDirection = 'column';
+STYLESELECTORS.style.gap = '15px';
+STYLESELECTORS.style.paddingTop = '20px';
+
+let defaultButton = document.createElement('button');
+defaultButton.textContent = "Default";
+defaultButton.addEventListener('click', (event) => {
+    style = 0;
+});
+
+let eraserButton = document.createElement('button');
+eraserButton.textContent = "Eraser";
+eraserButton.addEventListener('click', (event) => {
+    style = 1;
+});
+
+let darkerButton = document.createElement('button');
+darkerButton.textContent = "Darken";
+darkerButton.addEventListener('click', (event) => {
+    style = 2
+});
+
+let randomButton = document.createElement('button');
+randomButton.textContent = "RAINBOW";
+randomButton.addEventListener('click', (event) => {
+    style = 3;
+});
+
+let clearButton = document.createElement('button');
+clearButton.textContent = "Clear";
+clearButton.addEventListener('click', (event) => {
+    let containerNode = document.querySelector('.container');
+    if(containerNode){
+        containerNode.remove();
+    }
+    renderContainer(dimension);
+});
+
+
+STYLESELECTORS.appendChild(defaultButton);
+STYLESELECTORS.appendChild(eraserButton);
+STYLESELECTORS.appendChild(darkerButton);
+STYLESELECTORS.appendChild(randomButton);
+STYLESELECTORS.appendChild(clearButton);
+WORKSPACE.appendChild(STYLESELECTORS);
+
+BODY.appendChild(WORKSPACE);
+
 function renderContainer(dimension){
 
     let container = document.createElement('div');
     container.classList.add('container');
     container.style.width = SIZE;
-    container.style.flex = SIZE;
     
     for (let i = 0; i<dimension; i++){
         row = document.createElement('div');
@@ -55,18 +111,47 @@ function renderContainer(dimension){
             column = document.createElement('div');
             column.id = i+"x"+j;
             column.style.flex = 1;
+            column.style.backgroundColor = 'white';
+            column.style.filter = "brightness(100%)"
             column.classList.add('box');
-            column.addEventListener('mouseenter', (event)=> {
-                event.target.style.backgroundColor = 'black';
+            column.addEventListener('mouseenter', f = (event)=> {
+                switch (style){
+
+                    case 1:
+                        event.target.style.backgroundColor = 'white';
+                        event.target.style.filter = "brightness(100%)";
+                        break;
+
+                    case 2:
+                        let box = event.target.style.filter;
+                        filterValue = box.split('(')[1];
+                        filterValue = filterValue.split('%')[0];
+                        filterValue -= 10;
+                        event.target.style.filter = "brightness("+filterValue+"%)";
+                        break;
+
+                    case 3:
+                        event.target.style.backgroundColor = "#" + getRandomColor();
+                        event.target.style.filter = "brightness(100%)";
+                        break;
+
+                    default:
+                        event.target.style.backgroundColor = 'black';
+                }
             })
             row.appendChild(column);
         }
-        
+
         container.appendChild(row);
     }
     
     
-    BODY.appendChild(container);
+    WORKSPACE.appendChild(container);
+}
+
+// code from https://css-tricks.com/snippets/javascript/random-hex-color/
+function getRandomColor() {
+    return Math.floor(Math.random()*16777215).toString(16);
 }
 
 renderContainer(dimension);
